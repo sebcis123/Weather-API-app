@@ -17,7 +17,7 @@ def get_weather(city: str):
 
     try:
         response = requests.get(BASE_URL, params=params)
-        response.raise_for_status()  # Rzuci wyjątek jeśli nie 2xx
+        response.raise_for_status()  # Rzuci wyjątek jeśli kod nie jest 2xx
 
         data = response.json()
         temp = data["main"]["temp"]
@@ -31,8 +31,17 @@ def get_weather(city: str):
             "humidity": humidity
         }
 
-    except requests.exceptions.RequestException as e:
-        print("Błąd połączenia lub serwera:", e)
+    except requests.exceptions.HTTPError as http_err:
+        print(f"Błąd HTTP: {http_err}")
+        return None
+    except requests.exceptions.RequestException as req_err:
+        print(f"Błąd połączenia lub serwera: {req_err}")
+        return None
+    except KeyError:
+        print("Błąd: nieoczekiwana struktura danych z API.")
+        return None
+    except Exception as e:
+        print(f"Nieznany błąd: {e}")
         return None
 
 def main():
